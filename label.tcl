@@ -113,6 +113,202 @@ proc placeExamples {} {
 
 }
 
+proc radioButtonExample {} {
+
+  # Run updateLabel when radiobutton is clicked
+  proc updateLabel {myLabel item} {
+    global price
+    $myLabel configure -text "The cost for a potion of $item is $price gold pieces"
+  }
+
+  # Initial label
+  set l [label .l -text "Select a Potion"]
+
+  # Place label in grid
+  grid $l -column 0 -row 0 -columnspan 3
+
+  # Potions
+  set itemList [list "Cure Light Wounds" 16 "Boldness" 20 "See Invisible" 60]
+
+  # Current column
+  set position 0
+
+  # Create all radiobuttons
+  foreach {item cost} $itemList {
+
+    # Create radiobutton for potion
+    radiobutton .b_$position -text $item -variable price \
+      -value $cost -command [list updateLabel $l $item]
+
+    # Place radiobutton in grid column
+    grid .b_$position -column $position -row 1
+
+    # Next column
+    incr position
+
+  }
+
+}
+
+proc checkButtonExample {} {
+
+  proc updateLabel {myLabel item} {
+
+    global price ; set total 0
+
+    # Sum potion prices
+    foreach potion [array names price] {
+      incr total $price($potion)
+    }
+
+    # Display total price
+    $myLabel configure -text "Total cost is $total Gold Pieces"
+
+  }
+
+  # Create and place label in grid
+  set l [label .l -text "Select a Potion"]
+  grid $l -column 0 -row 0 -columnspan 3
+
+  # List of potions
+  set itemList [list "Cure Light Wounds" 16 "Boldness" 20 \
+    "See Invisible" 60 "Love Potion Number 9" 45]
+
+  # Current checkbutton row
+  set position 1
+
+  # Create and display all checkbuttons
+  foreach {item cost} $itemList {
+
+    # Checkbutton value is potion cost
+    checkbutton .b_$position -text $item \
+      -variable price($item) -onvalue $cost -offvalue 0 \
+      -command "[list updateLabel $l $item]"
+
+    # Checbutton in row
+    grid .b_$position -row $position -column 0 -sticky w
+    incr position
+
+  }
+
+}
+
+proc menuExamples {} {
+
+  # Create menu button
+  # Menu .mb.mnu is attached to menubutton .mb
+  menubutton .mb -menu .mb.mnu -text "File"\
+    -relief raised -background gray70
+
+  # Create menu
+  menu .mb.mnu
+
+  # Add radiobuttons
+  .mb.mnu add radiobutton -label "Small" \
+    -variable menuText -value "small text"
+  .mb.mnu add radiobutton -label "Medium" \
+    -variable menuText -value "medium text"
+  .mb.mnu add radiobutton -label "Large" \
+    -variable menuText -value "large text"
+
+  # Add separator
+  .mb.mnu add separator
+
+  # Add command
+  .mb.mnu add command -label "Command"
+
+  # Add top separator
+  .mb.mnu insert 0 separator
+
+  # Insert command at the top
+  .mb.mnu insert 0 command -label "Top"
+
+  # Add option that will be removed
+  .mb.mnu add command -label "Removed"
+
+  # Create submenu
+  .mb.mnu add cascade -label Submenu -menu .mb.mnu.submenu
+  menu .mb.mnu.submenu
+  .mb.mnu.submenu add command -label subOption1
+  .mb.mnu.submenu add command -label subOption2
+
+  pack .mb
+
+  # Delete option with label 'Removed'
+  .mb.mnu delete Removed
+
+  # Get option index
+  if {[.mb.mnu index Large]!=5} {
+    error "Invalid option index!"
+  }
+
+}
+
+proc menuBarExamples {} {
+
+  # Add menubar '.mbar' to root window
+  . configure -menu .mbar
+
+  # Create root window menu
+  menu .mbar
+
+  # Add 'Files' submenu
+  .mbar add cascade -label Files -menu .mbar.files
+  menu .mbar.files
+
+  # Add 'Files' options
+  .mbar.files add command -label Open -command "openFile"
+  .mbar.files add command -label Close
+  .mbar.files add command -label Edit
+
+  .mbar add cascade -label System -menu .mbar.system
+  menu .mbar.system
+  .mbar.system add command -label "Arch"
+  .mbar.system add command -label "Debian"
+  .mbar.system add command -label "Ubuntu"
+  .mbar.system add command -label "openSUSE"
+
+  # Add option directly
+  .mbar add command -label Run -command "go"
+
+  # Add 'Help' submenu
+  .mbar add cascade -label Help -menu .mbar.help
+  menu .mbar.help
+
+  # Add 'Help' option
+  .mbar.help add command -label About -command "displayAbout"
+  .mbar.help add command -label Contact
+
+}
+
+proc listBoxExamples {} {
+
+  # Create empty listbox
+  listbox .l ; pack .l
+
+  # Add listbox items at the beginning
+  .l insert 0 keyboard
+  .l insert 0 mouse
+  .l insert 0 otherDevice
+  .l insert 0 printer
+
+  # Delete second element (otherDevice)
+  .l delete 1
+
+  if {[.l curselection]!=""} {
+    error "Invalid listbox selection!"
+  }
+
+  # Get last element text
+  if {[.l get 2]!="keyboard"} {
+    error "Invalid listbox text!"
+  }
+
+}
+
+proc scrollbarExamples {} {
+}
+
 proc translate {widgets request} {
 
   # Upvar array from global level
@@ -137,7 +333,12 @@ array set french {Name Nom Street Rue "En Francais" "In English" }
 
 #packExamples
 #gridExamples
-placeExamples
+#placeExamples
+#radioButtonExample
+#checkButtonExample
+#menuExamples
+#menuBarExamples
+listBoxExamples
 
 # -------------------------------------------------------------
 
