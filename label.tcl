@@ -306,7 +306,157 @@ proc listBoxExamples {} {
 
 }
 
-proc scrollbarExamples {} {
+proc scrollbarExamples {version} {
+
+  switch $version {
+
+    1 {
+
+      # Create scrollbar and set its command
+      # After moving scrollbar, command will be expanded with 'moveto' function
+      scrollbar .scroll -command ".box yview"
+
+      # Create listbox controlled by scrollbar
+      # Parameters will be added to the command
+      # to inform how position of scrollbar changed
+      listbox .box -height 4 -yscrollcommand ".scroll set"
+
+      # Pack listbox and scrollbar
+      pack .box -side left
+      pack .scroll -side right -fill y
+
+      # Insert listbox elements
+      .box insert end 0 1 2 3 4 5 6 7 8 9 10
+
+    }
+
+    2 {
+
+      # Listboxes
+      listbox .leftbox -height 5 -exportselection 0
+      listbox .rightbox -height 5 -exportselection 0
+
+      # Insert listbox elements (left: 10, right: 20)
+      for {set i 0} {$i < 10} {incr i} {
+
+        # Left
+        .leftbox insert end "Left Line $i"
+
+        # Right
+        .rightbox insert end "Right Line $i"
+        .rightbox insert end "Next Right $i"
+
+      }
+
+      # Place listboxes in grid
+      grid .leftbox -column 0 -row 0
+      grid .rightbox -column 2 -row 0
+
+      # Create scrollbar with moveLists command
+      scrollbar .scroll -command "moveLists .scroll .leftbox .rightbox"
+
+      # Set slider size and location
+      .scroll set 0 [expr 5.0 / 20.0]
+
+      # Place scrollbar in grid
+      grid .scroll -column 1 -row 0 -sticky ns
+
+      # Function to control 2 listboxes
+      proc moveLists {scrollbar listbox1 listbox2 args} {
+
+        # Get listbox height
+        set height [$listbox2 cget -height]
+
+        # Get number of list elements
+        set size1 [$listbox1 size] ; set size2 [$listbox2 size]
+
+        # Set size of larger list
+        set size [expr {$size1 > $size2 ? $size1 : $size2}].0
+
+        # Get scrollbar position
+        set scrollPosition [$scrollbar get]
+        set startFract [lindex $scrollPosition 0]
+
+        # Get listbox top elements indices
+        set top1 [expr int($size1 * $startFract)]
+        set top2 [expr int($size2 * $startFract)]
+
+        # Read added parameters (for example {scroll 1 units}
+        set cmdlst [split $args]
+
+        # Click on arrow or scrollbar - scroll
+        # Drag slider - moveto
+        switch [lindex $cmdlst 0] {
+
+          "scroll" {
+
+            # Get count and unit from cmdlst
+            foreach {sc count unit} $cmdlst {}
+
+            if {[string first units $unit] >= 0} {
+
+              # Click on arrow (scroll 1/-1 units)
+              set increment [expr 1 * $count];
+
+            } else {
+
+              # Click on scrollbar (scroll 1/-1 pages)
+              set increment [expr $height * $count];
+
+            }
+
+            # Calculate new fractions
+            set topFract1 [expr ($top1 + $increment) / $size]
+            set topFract2 [expr ($top2 + $increment) / $size]
+            if {$topFract1 < 0} {set topFract1 0}
+            if {$topFract2 < 0} {set topFract2 0}
+
+          }
+
+          "moveto" {
+
+            # The cmd list for example is 'moveto 0.61'
+            # Get new topFract
+            set topFract [lindex $cmdlst 1]
+            if {$topFract < 0} {set topFract 0}
+
+            # Scale values
+            set topFract1 [expr $topFract * ($size1/$size)]
+            set topFract2 [expr $topFract * ($size2/$size)]
+
+          }
+
+        }
+
+        # Update listboxes
+        $listbox1 yview moveto $topFract1
+        $listbox2 yview moveto $topFract2
+
+        set topFract [expr ($topFract1 > $topFract2) ? \
+          $topFract1 : $topFract2 ]
+
+        if {$topFract > (1.0 - ($height-1)/$size)} {
+          set topFract [expr (1.0 - ($height-1)/$size)]
+        }
+
+        set bottomFract [expr $topFract + (($height-1)/$size)]
+
+        # Update scrollbar
+        $scrollbar set $topFract $bottomFract
+
+      }
+
+    }
+
+    default {
+      error "Invalid scrollbar example version!"
+    }
+
+  }
+
+}
+
+proc scaleExamples {} {
 }
 
 proc translate {widgets request} {
@@ -338,7 +488,8 @@ array set french {Name Nom Street Rue "En Francais" "In English" }
 #checkButtonExample
 #menuExamples
 #menuBarExamples
-listBoxExamples
+#listBoxExamples
+scrollbarExamples 2
 
 # -------------------------------------------------------------
 
