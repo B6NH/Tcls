@@ -1,6 +1,6 @@
 #!/usr/bin/wish
 
-# Graphics
+# Widgets
 
 proc packExamples {} {
 
@@ -457,6 +457,127 @@ proc scrollbarExamples {version} {
 }
 
 proc scaleExamples {} {
+
+  # Convert celsius to fahrenheit
+  proc celToF {ctemp} {
+    global fahrenheit
+    set fahrenheit [expr ($ctemp * 1.8) + 32]
+  }
+
+  # Convert fahrenheit to celsius
+  proc faToC {ftemp} {
+    global celsius
+    set celsius [expr ($ftemp - 32) / 1.8]
+  }
+
+  # Create fahrenheit scale
+  # Update celsius variable
+  set fahrenscale [scale .fht -orient horizontal \
+    -from 0 -to 100 -length 250 \
+    -resolution .1 -tickinterval 20 -label "Fahrenheit" \
+    -variable fahrenheit -command faToC]
+
+  # Create celsius scale
+  # Update fahrenheit variable
+  set celscale [scale .cel -orient horizontal \
+    -from -20 -to 40 -length 250 \
+    -resolution .1 -tickinterval 20 -label "Celsius" \
+    -variable celsius -command celToF]
+
+
+  # Create label in current window
+  label .l -text "I’m in the original scale window"
+
+  # Create new top level window and label
+  toplevel .otherTopLevel
+  label .otherTopLevel.l -text "I’m in new window"
+
+  # Place widgets
+  pack $fahrenscale -side top
+  pack $celscale -side top
+
+  # Pack labels
+  pack .l
+  pack .otherTopLevel.l
+
+}
+
+proc loopExamples {} {
+
+  proc shortenText {widget} {
+
+    # Read widget text
+    set txt [$widget cget -text]
+
+    if {"" == $txt} {
+
+      # All characters removed
+      return
+
+    } else {
+
+      # Delete first character
+      set txt [string range $txt 1 end]
+
+      # Update widget text
+      $widget configure -text $txt
+
+      # Set shortenText function call in 200 milliseconds
+      after 200 shortenText $widget
+
+    }
+
+  }
+
+  # Create and pack label
+  label .l -text "" -width 25
+  pack .l
+
+  # Set string
+  set str "Lion with Eagle Wings"
+  set strLen [string length $str]
+
+  for {set i 1} {$i < $strLen} {incr i} {
+
+    # Set label text and update
+    .l configure -text [string range $str 0 $i]
+    update
+
+    # Pause for 120 milliseconds
+    after 120
+
+    # Busy waiting
+    #for {set j 0} {$j < 5e4} {incr j} {
+    #  set x [expr $j.0 * 2]
+    #}
+
+  }
+
+  # Gradually delete all text
+  shortenText .l
+
+
+  # Set exit event
+  set exitEvent [after 3000 exit]
+
+  # Get ids of scheduled events
+  foreach id [after info] {
+
+    # Show events
+    puts [after info $id]
+
+    # Cancel event
+    # after cancel $id
+
+  }
+
+  # Create button that allows to cancel exit event
+  button .b -text "Cancel Exit!" \
+    -command "after cancel $exitEvent"
+
+  # Pack button
+  pack .b
+
 }
 
 proc translate {widgets request} {
@@ -489,7 +610,9 @@ array set french {Name Nom Street Rue "En Francais" "In English" }
 #menuExamples
 #menuBarExamples
 #listBoxExamples
-scrollbarExamples 2
+#scrollbarExamples 2
+#scaleExamples
+loopExamples
 
 # -------------------------------------------------------------
 
