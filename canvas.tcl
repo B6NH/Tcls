@@ -49,6 +49,33 @@ proc items {} {
 
 }
 
+proc modif {} {
+
+  # Create a canvas with a white background
+  set canv [canvas .c -height 50 -width 290 -background white]
+
+  # Create some text colored the default black.
+  set top [ $canv create text 145 20 \
+    -text "This text can be seen before clicking the button"]
+
+  # Create some text colored white.
+  # It won’t show against the background.
+  set bottom [ $canv create text 145 30 -fill white \
+    -text "This text can be seen after clicking the button"]
+
+  # Create a button that will use itemconfigure to change the
+  # colors of the two lines of text.
+  set colorswap [button .b1 -text "Swap colors" \
+    -command "$canv itemconfigure $top -fill white;\
+    $canv itemconfigure $bottom -fill black;"]
+
+  # Pack them
+  pack $canv -side top
+  pack $colorswap -side bottom
+
+}
 
 #face
-items
+#items
+modif
+
