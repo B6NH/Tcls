@@ -2,25 +2,39 @@
 
 # Canvas
 
+proc createLeftEye {canv} {
+  return [$canv create oval 39 49 53 63 -outline black -fill black]
+}
+
+proc createRightEye {canv} {
+  return [$canv create oval 102 63 88 49 -outline black -fill black]
+}
+
+proc createNoseAndSmile {canv} {
+
+  # Nose
+  $canv create polygon 70 67 74 81 69 77 67 81 -fill black
+
+  # Smile
+  $canv create arc 21 21 119 119 -start 225 -extent 95 -style arc -outline black -width 3
+
+}
+
+proc createHead {canv color} {
+  $canv create oval 7 7 133 133 -outline black -fill $color -width 2
+}
+
 proc face {} {
 
   # Create canvas
   canvas .c -height 140 -width 140 -background blue
   pack .c
 
-  # Create oval on canvas
-  .c create oval 7 7 133 133 -outline black -fill red -width 2
-
-  # Eyes
-  .c create oval 39 49 53 63 -outline black -fill black
-  .c create oval 102 63 88 49 -outline black -fill black
-
-  # Nose
-  .c create polygon 70 67 74 81 69 77 67 81 -fill black
-
-  # Smile
-  .c create arc 21 21 119 119 -start 225\
-    -extent 95 -style arc -outline black -width 3
+  # Create face elements
+  createHead .c red
+  createLeftEye .c
+  createRightEye .c
+  createNoseAndSmile .c
 
 }
 
@@ -75,7 +89,51 @@ proc modif {} {
 
 }
 
+proc winkExample {} {
+
+  # Canvas creation
+  canvas .c -height 140 -width 140 -background white
+  pack .c
+
+  # Create head, eyes, nose and smile
+  createHead .c gray80
+  createLeftEye .c
+  set righteye [createRightEye .c]
+  createNoseAndSmile .c
+
+  # Wink
+  wink .c $righteye
+
+}
+
+proc wink {canv item} {
+
+  # Set variables
+  set bounding [$canv coords $item]
+  set left [lindex $bounding 0]
+  set bottom [lindex $bounding 1]
+  set right [lindex $bounding 2]
+  set top [lindex $bounding 3]
+  set halfeye [expr int($top-$bottom)/2]
+
+  # Close eye
+  for {set i 1} {$i < $halfeye} {incr i } {
+    $canv coords $item $left [expr $top - $i] $right [expr $bottom + $i];
+    update
+    after 100
+  }
+
+  # Open eye
+  for {set i $halfeye} {$i >= 0} {incr i -1} {
+    $canv coords $item $left [expr $top - $i] $right [expr $bottom + $i]
+    update
+    after 100
+  }
+
+}
+
 #face
 #items
-modif
+#modif
+winkExample
 
