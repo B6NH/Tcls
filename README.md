@@ -9,4 +9,5 @@ Examples based on book "Tcl/Tk: A Developer's Guide" - Clif Flynt
 3. [Widgets](widgets.tcl)
 4. [Canvas](canvas.tcl)
 5. [Mega](mega.tcl)
+6. [Guide](guide.tcl)
 
